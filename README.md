@@ -13,4 +13,12 @@ Run on a local machine as-<BR>
 ./mqttclient <LOOPBACK_ADDR> <PORT_NO><BR>
 <BR>
 where <LOOPBACK_ADDR> can be replaced by your own loopback address as example- 127.0.0.1
-![Screenshot from 2024-05-18 23-08-35](https://github.com/Stormbreaker999/MQTT/assets/115149477/2f919d08-f41a-494c-9fc3-0dfc004e85b9)
+
+
+<BR><BR>
+In the new modification have added an additional timer(of 3 seconds) for a subscriber to send requests that perform a checks if data returned by broker same as previous one or not, if not same then message is displayed to the subscriber.
+
+<BR>A sample run of the implementation is ---->
+
+![newmqtt](https://github.com/Stormbreaker999/MQTT/assets/115149477/ef79c9b2-cbc3-4d2f-9a65-8144298d92af)
+
