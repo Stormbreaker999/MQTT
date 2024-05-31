@@ -1,5 +1,6 @@
 #include<stdbool.h>
 #include<stdio.h>
+#include<time.h>
 #define MAX_PACKET_SIZE 2048
 
 int connectmsg(int);
@@ -11,10 +12,14 @@ void message_processing(int sockfd){
     char buffer[MAX_PACKET_SIZE];
     bool isPublisher;
     char ans;
-    printf("Are you a publisher or subscriber (y/n): ");
+    printf("Are you a publisher or subscriber (p/s): ");
     scanf("%c", &ans);
-    if(ans=='y') isPublisher=true;
-    else isPublisher=false;
+    if(ans=='p') isPublisher=true;
+    else if(ans=='s') isPublisher=false;
+    else{
+        printf("Invalid Response\n");
+        return;
+    }
     int con=connectmsg(sockfd);
     if(con<-1){
         printf("Invalid Acknowledgement\nTrying again...");
@@ -125,21 +130,17 @@ void handle_publisher(int sockfd){
 void handle_consumer(int sockfd){
     char buffer[MAX_PACKET_SIZE];
     getchar();
-    while(1){
-    	
-        char ans;
-        printf("Want to subscribe any data (y/n): ");
+    char ans;
+    printf("Want to subscribe any data (y/n): ");
         
-        
-        ans=getchar();
-        
-        
-        if(ans=='n') break;
-        char TOPIC[8];
-        printf("Enter topic name(<=7): ");
-        scanf("%s", TOPIC);
-        getchar();
-        
+    scanf("%c", &ans);
+    getchar();
+    char TOPIC[8];
+    printf("Enter topic name(<=7): ");
+    scanf("%s", TOPIC);
+    getchar();
+    char prev[2025]="";
+    while(1){ 
         //Subscribe message 00110000 48
         bzero(buffer, sizeof(buffer));
         buffer[0]=48;
@@ -152,9 +153,9 @@ void handle_consumer(int sockfd){
         buffer[2+i]='\0';
         
         int n=send(sockfd, buffer, strlen(buffer),0);
-        if(n){
-            printf("Subscribe Message sent successfully\n");
-        }
+        //if(n){
+        //   printf("Subscribe Message sent successfully\n");
+        //}
         
         bzero(buffer,sizeof(buffer));
         n=recv(sockfd, buffer, sizeof(buffer),0);
@@ -177,30 +178,42 @@ void handle_consumer(int sockfd){
              	}
              	topic[i]='\0';
              	char *msg=buffer+3+i;
-             	
+             	if(strcmp(prev,msg)==0){
+             	    printf("No new event occurred\n");
+             	    time_t start=time(NULL); 
+             	    while(time(NULL)-start<=3);
+             	    char dis;
+            	    printf("Want to disconnect(y/n): ");
+            	    scanf("%c", &dis);
+            	    getchar();
+            	    if(dis=='y') break;
+            	    printf("Waiting for messages->\n");
+            	    continue;
+            	}
+            
+             	strcpy(prev,msg);
              	printf("Topic length =  %d\n", topic_length);
              
              	printf("Topic - %s\n", topic);
              	printf("Message - %s\n", msg);
+             	
+             	
             }
         }
+        
+            char dis;
+            printf("Want to disconnect(y/n): ");
+            scanf("%c", &dis);
+            getchar();
+            if(dis=='y') break;
+            
+            printf("Waiting for messages->\n");
+            
+        
     }
-    printf("Disconnect from the server (y/n) : ");
-    char ans;   
-    getchar();
-    ans=getchar();
-    if(ans=='y'){
-    	disconnect(sockfd, buffer);
-    	
-    	
-    }
-    else if(ans=='n'){
-        handle_consumer(sockfd);
-    }
-    else{
-        printf("Invalid Response\nExitting!");
-        disconnect(sockfd, buffer);
-    }
+    
+    disconnect(sockfd, buffer);
+   
 }
         
         
@@ -223,20 +236,5 @@ void disconnect(int sockfd, char *buffer){
     }
 }
        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
+     
         

@@ -1,7 +1,5 @@
 #include<string.h>
 
-
-
 void sendack(int);
 int handleclient(int);
 
@@ -58,7 +56,6 @@ int handleclient(int clifd){
     char buffer[2048];
     bzero(buffer, sizeof(buffer));
     int n=recv(clifd, buffer, sizeof(buffer), 0);
-    
     if(n){
          if(buffer[0]==32){
              //Publish Message
@@ -74,11 +71,15 @@ int handleclient(int clifd){
              char *msg=buffer+3+i;
              //Saving to file
              write_to_file(topic, msg);
+             
+             
+             
              printf("Topic length =  %d\n", topic_length);
              
              printf("Topic - %s\n", topic);
              printf("Message - %s\n", msg);
-             
+             //Sending message to all subscribers
+          
              
              //Send Publish Acknowledgement
              bzero(buffer, sizeof(buffer));
@@ -99,7 +100,9 @@ int handleclient(int clifd){
                  i++;
              }
              topic[i]='\0';
-             printf("%s\n", topic);
+
+             //printf("%s\n", topic);
+             
              //Reading from file
              char msg[2025];
              int len=read_from_file(topic, msg);
@@ -108,7 +111,7 @@ int handleclient(int clifd){
              bzero(buffer, sizeof(buffer));
              //Piggybacking 00111100 = 60
              if(len){
-             	printf("%d", len);
+             	//printf("%d", len);
              	msg[len-2]='\0';
              	len=strlen(msg);
              	buffer[0]=60;
@@ -125,7 +128,7 @@ int handleclient(int clifd){
              	    buffer[3+topic_length+i]=msg[i];
              	}
              	buffer[3+topic_length+i]='\0';
-             	printf("%s\n", buffer);
+             	//printf("%s\n", buffer);
              	n=send(clifd,buffer, 3+topic_length+i, 0);
              	
              }
@@ -142,7 +145,7 @@ int handleclient(int clifd){
              	buffer[3+i]='\0';
              	n=send(clifd,buffer, strlen(buffer), 0);
              }
-             printf("%s\n", msg);
+             //printf("%s\n", msg);
              return 1;
              
          }
